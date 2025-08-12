@@ -9,6 +9,12 @@ jQuery(document).ready(function($){
 		isMobile: window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 	};
 	
+	// Global timer management to prevent overlapping
+	var globalAnimationState = {
+		isAnimating: false,
+		timers: []
+	};
+	
 	function initHeadlineAnimation() {
 		$('.cd-headline.rotate-1').each(function() {
 			var $headline = $(this);
@@ -66,21 +72,27 @@ jQuery(document).ready(function($){
 			overflow: 'hidden',
 			verticalAlign: 'baseline'
 		});
+		
+		// Ensure parent headline maintains proper display context
+		var $headline = $wrapper.closest('.cd-headline.rotate-1');
+		$headline.css('align-items', 'center');
 	}
 	
 	function initializeWords($words) {
 		// Reset all classes and styles
 		$words.removeClass('is-visible is-hidden animate-in animate-out');
 		
-		// Set initial positions
+		// Set initial positions with more robust transforms
 		$words.each(function(index) {
 			$(this).css({
 				position: 'absolute',
 				top: '0',
 				left: '0',
+				width: '100%',
 				opacity: index === 0 ? '1' : '0',
-				transform: index === 0 ? 'translateY(0%) scale(1)' : 'translateY(100%) scale(0.95)',
-				transition: 'none'
+				transform: index === 0 ? 'translateY(0%) scale(1)' : 'translateY(120%) scale(0.9)',
+				transition: 'none',
+				zIndex: index === 0 ? '2' : '1'
 			});
 			
 			if (index === 0) {
@@ -96,64 +108,92 @@ jQuery(document).ready(function($){
 		// Enable transitions after initial setup
 		setTimeout(function() {
 			$words.css({
-				transition: `opacity ${config.animDuration}ms ${config.animEasing}, transform ${config.animDuration}ms ${config.animEasing}`
+				transition: `opacity ${config.animDuration}ms ${config.animEasing}, transform ${config.animDuration}ms ${config.animEasing}, z-index 0ms`
 			});
 		}, 50);
 	}
 	
 	function startAnimationCycle($wrapper, $words) {
 		var currentIndex = 0;
-		var isAnimating = false;
 		
 		function switchToNextWord() {
-			if (isAnimating || $words.length <= 1) return;
+			if (globalAnimationState.isAnimating || $words.length <= 1) return;
 			
-			isAnimating = true;
+			globalAnimationState.isAnimating = true;
 			var $current = $words.eq(currentIndex);
 			var nextIndex = (currentIndex + 1) % $words.length;
 			var $next = $words.eq(nextIndex);
 			
+			// Clear any existing timer for this wrapper
+			var existingTimer = $wrapper.data('animTimer');
+			if (existingTimer) {
+				clearTimeout(existingTimer);
+				$wrapper.removeData('animTimer');
+			}
+			
+			// Set z-index for proper layering
+			$current.css('zIndex', '3');
+			$next.css('zIndex', '2');
+			
 			// Start exit animation for current word
 			$current.removeClass('is-visible').addClass('animate-out').css({
 				opacity: '0',
-				transform: 'translateY(-50%) scale(0.95)'
+				transform: 'translateY(-60%) scale(0.95)'
 			});
 			
-			// Prepare next word
+			// Prepare next word - ensure it starts from below viewport
 			$next.removeClass('is-hidden').addClass('animate-in').css({
 				opacity: '0',
-				transform: 'translateY(100%) scale(0.95)'
+				transform: 'translateY(120%) scale(0.9)',
+				zIndex: '2'
 			});
 			
-			// Small delay then animate in the next word
+			// Force reflow before animation
+			$next[0].offsetHeight;
+			
+			// Animate in the next word after small delay
 			setTimeout(function() {
 				$next.css({
 					opacity: '1',
-					transform: 'translateY(0%) scale(1)'
+					transform: 'translateY(0%) scale(1)',
+					zIndex: '2'
 				});
-			}, 100);
+			}, 50);
 			
-			// Clean up after animation completes
+			// Clean up after animation completes and schedule next
 			setTimeout(function() {
 				$current.removeClass('animate-out').addClass('is-hidden').css({
-					transform: 'translateY(100%) scale(0.95)'
+					transform: 'translateY(120%) scale(0.9)',
+					zIndex: '1'
 				});
 				
-				$next.removeClass('animate-in').addClass('is-visible');
+				$next.removeClass('animate-in').addClass('is-visible').css({
+					zIndex: '2'
+				});
 				
 				currentIndex = nextIndex;
-				isAnimating = false;
+				globalAnimationState.isAnimating = false;
 				
-				// Schedule next switch
-				var timer = setTimeout(switchToNextWord, config.delay);
+				// Schedule next switch - ensure consistent timing
+				var timer = setTimeout(function() {
+					switchToNextWord();
+				}, config.delay);
+				
 				$wrapper.data('animTimer', timer);
+				globalAnimationState.timers.push(timer);
 				
-			}, config.animDuration);
+				console.log('Animation completed, next in:', config.delay + 'ms');
+				
+			}, config.animDuration + 50); // Small buffer to ensure animation completes
 		}
 		
-		// Start the cycle
-		var initialTimer = setTimeout(switchToNextWord, config.delay);
+		// Start the cycle with initial delay
+		var initialTimer = setTimeout(function() {
+			switchToNextWord();
+		}, config.delay);
+		
 		$wrapper.data('animTimer', initialTimer);
+		globalAnimationState.timers.push(initialTimer);
 	}
 	
 	// Handle responsive changes
@@ -169,14 +209,27 @@ jQuery(document).ready(function($){
 	// Handle page visibility
 	function handleVisibilityChange() {
 		if (document.hidden) {
-			// Pause animations
+			// Pause animations and clear all timers
+			globalAnimationState.isAnimating = false;
+			globalAnimationState.timers.forEach(function(timer) {
+				clearTimeout(timer);
+			});
+			globalAnimationState.timers = [];
+			
 			$('.cd-words-wrapper').each(function() {
 				var timer = $(this).data('animTimer');
-				if (timer) clearTimeout(timer);
+				if (timer) {
+					clearTimeout(timer);
+					$(this).removeData('animTimer');
+				}
 			});
 		} else {
 			// Resume animations
-			setTimeout(initHeadlineAnimation, 200);
+			setTimeout(function() {
+				globalAnimationState.isAnimating = false;
+				globalAnimationState.timers = [];
+				initHeadlineAnimation();
+			}, 200);
 		}
 	}
 	
