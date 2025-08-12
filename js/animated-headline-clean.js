@@ -6,13 +6,14 @@ jQuery(document).ready(function($){
 		delay: 2500,           // Time between word changes
 		animDuration: 800,     // Animation duration
 		animEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // Smooth easing
-		isMobile: window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+		isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 	};
 	
 	// Global timer management to prevent overlapping
 	var globalAnimationState = {
 		isAnimating: false,
-		timers: []
+		timers: [],
+		lastSwitchTime: 0
 	};
 	
 	function initHeadlineAnimation() {
@@ -119,7 +120,16 @@ jQuery(document).ready(function($){
 		function switchToNextWord() {
 			if (globalAnimationState.isAnimating || $words.length <= 1) return;
 			
+			// Prevent rapid consecutive switches
+			var now = Date.now();
+			if (now - globalAnimationState.lastSwitchTime < config.delay - 100) {
+				console.log('Preventing rapid switch, time since last:', now - globalAnimationState.lastSwitchTime);
+				return;
+			}
+			
 			globalAnimationState.isAnimating = true;
+			globalAnimationState.lastSwitchTime = now;
+			
 			var $current = $words.eq(currentIndex);
 			var nextIndex = (currentIndex + 1) % $words.length;
 			var $next = $words.eq(nextIndex);
@@ -130,6 +140,8 @@ jQuery(document).ready(function($){
 				clearTimeout(existingTimer);
 				$wrapper.removeData('animTimer');
 			}
+			
+			console.log('Starting animation from word', currentIndex, 'to', nextIndex);
 			
 			// Set z-index for proper layering
 			$current.css('zIndex', '3');
@@ -153,6 +165,7 @@ jQuery(document).ready(function($){
 			
 			// Animate in the next word after small delay
 			setTimeout(function() {
+				if (!globalAnimationState.isAnimating) return; // Safety check
 				$next.css({
 					opacity: '1',
 					transform: 'translateY(0%) scale(1)',
@@ -174,7 +187,7 @@ jQuery(document).ready(function($){
 				currentIndex = nextIndex;
 				globalAnimationState.isAnimating = false;
 				
-				// Schedule next switch - ensure consistent timing
+				// Schedule next switch with guaranteed delay
 				var timer = setTimeout(function() {
 					switchToNextWord();
 				}, config.delay);
@@ -182,9 +195,9 @@ jQuery(document).ready(function($){
 				$wrapper.data('animTimer', timer);
 				globalAnimationState.timers.push(timer);
 				
-				console.log('Animation completed, next in:', config.delay + 'ms');
+				console.log('Animation completed, scheduling next in:', config.delay + 'ms');
 				
-			}, config.animDuration + 50); // Small buffer to ensure animation completes
+			}, config.animDuration + 100); // Extended buffer
 		}
 		
 		// Start the cycle with initial delay

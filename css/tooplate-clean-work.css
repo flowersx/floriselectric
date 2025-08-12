@@ -186,6 +186,8 @@ strong {
     flex-direction: column;
     text-align: center;
     gap: 0.5rem;
+    margin-top: 1rem; /* Add space above on mobile */
+    padding-top: 0.5rem;
   }
   
   .cd-headline.rotate-1 > span:first-child {
