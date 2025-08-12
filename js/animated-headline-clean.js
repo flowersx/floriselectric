@@ -54,46 +54,47 @@ jQuery(document).ready(function($){
 				isAnimating = true;
 				
 				if (isIOS) {
-					// iOS-specific smooth fade animation
+					// iOS-specific smooth slide animation (no fade)
 					var $current = $words.eq(currentIndex);
 					var nextIndex = (currentIndex + 1) % $words.length;
 					var $next = $words.eq(nextIndex);
 					
-					// Fade out current word
+					// Prepare next word positioned below
+					$next.removeClass('is-hidden').addClass('is-visible').css({
+						'transform': 'translateY(100%)',
+						'transition': 'none',
+						'opacity': '1'
+					});
+					
+					// Force reflow
+					$next[0].offsetHeight;
+					
+					// Start animations simultaneously
 					$current.css({
-						'transition': 'opacity 0.4s ease-out',
-						'opacity': '0'
+						'transition': 'transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+						'transform': 'translateY(-100%)'
+					});
+					
+					$next.css({
+						'transition': 'transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)',
+						'transform': 'translateY(0%)'
 					});
 					
 					setTimeout(function() {
 						$current.removeClass('is-visible').addClass('is-hidden').css({
 							'transition': '',
-							'opacity': ''
+							'transform': ''
 						});
 						
-						// Prepare next word
-						$next.removeClass('is-hidden').addClass('is-visible').css({
-							'opacity': '0',
-							'transition': 'opacity 0.4s ease-in'
+						$next.css({
+							'transition': '',
+							'transform': ''
 						});
-						
-						// Force reflow
-						$next[0].offsetHeight;
-						
-						// Fade in next word
-						$next.css('opacity', '1');
 						
 						currentIndex = nextIndex;
-						
-						setTimeout(function() {
-							$next.css({
-								'transition': '',
-								'opacity': ''
-							});
-							isAnimating = false;
-						}, 400);
-						
-					}, 400);
+						isAnimating = false;
+					}, 600);
+					
 				} else {
 					// Original 3D flip animation for desktop/Android
 					$words.eq(currentIndex).removeClass('is-visible').addClass('is-hidden');

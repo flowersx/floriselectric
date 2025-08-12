@@ -399,7 +399,7 @@ strong {
   }
 }
 
-/* iOS-specific: disable 3D animations to prevent glitches */
+/* iOS-specific: disable 3D animations and enable smooth transforms */
 @supports (-webkit-touch-callout: none) {
   .cd-headline.rotate-1 b.is-visible,
   .cd-headline.rotate-1 b.is-hidden {
@@ -409,6 +409,20 @@ strong {
     -webkit-transform: none !important;
     -moz-transform: none !important;
     transform: none !important;
+  }
+  
+  .cd-headline.rotate-1 b {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+  
+  .cd-headline.rotate-1 .cd-words-wrapper {
+    overflow: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 
