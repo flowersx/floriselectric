@@ -175,6 +175,8 @@ strong {
   display: inline-block;
   position: relative;
   text-align: left;
+  /* Performance tweak: isolate to its own layer */
+  will-change: transform;
 }
 
 .cd-words-wrapper b {
@@ -184,6 +186,9 @@ strong {
   white-space: nowrap;
   left: 0;
   top: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 .cd-words-wrapper b.is-visible {
