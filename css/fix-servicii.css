@@ -266,3 +266,27 @@ body {
     font-size: 1rem;
   }
 }
+
+/* Forțează titlurile din pagina services.html să rămână pe un singur rând */
+.services-title {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  display: inline-block !important;
+  width: auto !important;
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+}
+
+/* Pentru containerele de servicii din services.html */
+.services-info {
+  overflow: visible !important;
+}
+
+.services-info h4 {
+  white-space: nowrap !important;
+  overflow: visible !important;
+  display: inline-block !important;
+  width: auto !important;
+  min-width: max-content !important;
+}
