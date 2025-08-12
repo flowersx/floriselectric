@@ -177,6 +177,23 @@
     gap: 0.2rem;
   }
 }
+/* Forțează zoom-ul să fie la 1.0 pe toate dispozitivele */
+html {
+  zoom: 1.0 !important;
+  -moz-transform: scale(1.0) !important;
+  -webkit-transform: scale(1.0) !important;
+  transform: scale(1.0) !important;
+  -ms-zoom: 1.0 !important;
+}
+
+body {
+  zoom: 1.0 !important;
+  -moz-transform: scale(1.0) !important;
+  -webkit-transform: scale(1.0) !important;
+  transform: scale(1.0) !important;
+  -ms-zoom: 1.0 !important;
+}
+
 /* Egalizare carduri servicii pe fiecare rând */
 .services-section .row {
   display: flex;
