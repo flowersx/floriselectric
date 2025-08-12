@@ -17,38 +17,27 @@ jQuery(document).ready(function($){
 			var $wrapper = $headline.find('.cd-words-wrapper');
 			var $words = $wrapper.find('b');
 			if ($words.length <= 1) return;
-			// Clear previous timer
 			var prevT = $wrapper.data('rotTimer'); if (prevT) clearTimeout(prevT);
-			// NEW baseline alignment fix
-			var headlineLineH = $headline.css('line-height');
-			$wrapper.css({
-				lineHeight: headlineLineH,
-				display: 'inline-block',
-				verticalAlign: 'baseline',
-				overflow: 'visible', // allow descenders
-				position: 'relative'
-			});
-			// Remove any padding/margin previously added
-			$wrapper.css({marginTop:'0', paddingTop:'0'});
-			// After first word visible, adjust minor vertical offset if needed
-			requestAnimationFrame(function(){
-				var firstH = $words.eq(0).outerHeight();
-				var lineHNum = parseFloat(headlineLineH);
-				if(!isNaN(lineHNum) && firstH && Math.abs(lineHNum - firstH) > 2){
-					// center the rotating word block within line-height
-					var delta = (lineHNum - firstH)/2;
-					if (Math.abs(delta) < 20) { // safety clamp
-						$wrapper.css('top', delta + 'px');
-					}
-				}
-			});
-			// Keep all absolute; hide all first to prevent flash
+
+			// 1) LOCK WRAPPER HEIGHT ONCE (prevents jump but keeps baseline by NOT translating)
+			if(!$wrapper.data('lockH')){
+				var maxH = 0; $words.each(function(){ maxH = Math.max(maxH, $(this).outerHeight()); });
+				$wrapper.css({height:maxH+'px', display:'inline-block', verticalAlign:'baseline', position:'relative'}).data('lockH', true);
+			}
+
+			// 2) iOS: FORCE ABSOLUTE FOR VISIBLE WORD TOO (avoid layout reflow when class toggles)
+			if (typeof _isIOS !== 'undefined' && _isIOS) {
+				$words.css({position:'absolute'}); // all stacked
+			}
+
+			// 3) RESET CLASSES
 			$words.removeClass('is-visible is-hidden');
 			$words.addClass('is-hidden').attr('aria-hidden','true');
 			$words.eq(0).removeClass('is-hidden').addClass('is-visible').attr('aria-hidden','false');
-			var currentIndex = 0; var switching=false;
+
+			var currentIndex = 0; var switching = false;
 			function switchWord(){
-				if (switching) return; switching=true;
+				if (switching) return; switching = true;
 				var $current = $words.eq(currentIndex);
 				var nextIndex = (currentIndex + 1) % $words.length; var $next = $words.eq(nextIndex);
 				$current.attr('aria-hidden','true').removeClass('is-visible').addClass('is-hidden');
@@ -57,7 +46,6 @@ jQuery(document).ready(function($){
 				var t = setTimeout(function(){ switching=false; switchWord(); }, animationDelay);
 				$wrapper.data('rotTimer', t);
 			}
-			// start cycle
 			var startTimer = setTimeout(function(){ switchWord(); }, animationDelay);
 			$wrapper.data('rotTimer', startTimer);
 		});
