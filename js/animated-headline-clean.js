@@ -19,35 +19,55 @@ jQuery(document).ready(function($){
 			if ($words.length <= 1) return;
 			var prevT = $wrapper.data('rotTimer'); if (prevT) clearTimeout(prevT);
 
-			// 1) LOCK WRAPPER HEIGHT ONCE (prevents jump but keeps baseline by NOT translating)
-			if(!$wrapper.data('lockH')){
-				var maxH = 0; $words.each(function(){ maxH = Math.max(maxH, $(this).outerHeight()); });
-				$wrapper.css({height:maxH+'px', display:'inline-block', verticalAlign:'baseline', position:'relative'}).data('lockH', true);
-			}
+			// Revert any prior iOS absolute forcing for layout consistency
+			$words.each(function(){ this.style.position=''; this.style.transform=''; this.style.opacity=''; });
+			$wrapper.css({display:'inline-block', position:'relative'});
 
-			// 2) iOS: FORCE ABSOLUTE FOR VISIBLE WORD TOO (avoid layout reflow when class toggles)
-			if (typeof _isIOS !== 'undefined' && _isIOS) {
-				$words.css({position:'absolute'}); // all stacked
-			}
-
-			// 3) RESET CLASSES
 			$words.removeClass('is-visible is-hidden');
 			$words.addClass('is-hidden').attr('aria-hidden','true');
 			$words.eq(0).removeClass('is-hidden').addClass('is-visible').attr('aria-hidden','false');
 
 			var currentIndex = 0; var switching = false;
-			function switchWord(){
+			var useIOSFallback = (typeof _isIOS !== 'undefined' && _isIOS);
+
+			function cssKeyframeSwitch(){
 				if (switching) return; switching = true;
 				var $current = $words.eq(currentIndex);
 				var nextIndex = (currentIndex + 1) % $words.length; var $next = $words.eq(nextIndex);
 				$current.attr('aria-hidden','true').removeClass('is-visible').addClass('is-hidden');
 				$next.attr('aria-hidden','false').removeClass('is-hidden').addClass('is-visible');
 				currentIndex = nextIndex;
-				var t = setTimeout(function(){ switching=false; switchWord(); }, animationDelay);
+				var t = setTimeout(function(){ switching=false; schedule(); }, animationDelay);
 				$wrapper.data('rotTimer', t);
 			}
-			var startTimer = setTimeout(function(){ switchWord(); }, animationDelay);
-			$wrapper.data('rotTimer', startTimer);
+
+			function iosFallbackSwitch(){
+				if (switching) return; switching = true;
+				var $current = $words.eq(currentIndex);
+				var nextIndex = (currentIndex + 1) % $words.length; var $next = $words.eq(nextIndex);
+				// Prepare next
+				$next.attr('aria-hidden','false');
+				$next.removeClass('is-hidden is-visible'); // remove classes to avoid keyframes
+				$next.css({position:'absolute', left:0, top:0, transform:'rotateX(90deg)', opacity:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden'});
+				$current.css({position:'absolute', left:0, top:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden'});
+				$wrapper.css('height', Math.max($wrapper.height(), $current.outerHeight(), $next.outerHeight())+'px');
+				// Force reflow
+				void $next[0].offsetHeight;
+				// Animate via JS (transition inline)
+				$current.css({transition:'transform 0.6s ease, opacity 0.6s ease', transform:'rotateX(-90deg)', opacity:0});
+				$next.css({transition:'transform 0.6s ease, opacity 0.6s ease', transform:'rotateX(0deg)', opacity:1});
+				setTimeout(function(){
+					$current.addClass('is-hidden').removeAttr('style').attr('aria-hidden','true');
+					$next.addClass('is-visible').removeAttr('style');
+					currentIndex = nextIndex; switching=false; schedule();
+				}, 620);
+			}
+
+			function schedule(){
+				var t = setTimeout(function(){ useIOSFallback ? iosFallbackSwitch() : cssKeyframeSwitch(); }, animationDelay);
+				$wrapper.data('rotTimer', t);
+			}
+			schedule();
 		});
 	}
 	
