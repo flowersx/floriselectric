@@ -1,0 +1,227 @@
+/* Forțează header bar identic cu index.html pe toate paginile */
+.site-header {
+  background: #69aee7 !important;
+  color: #fff;
+  padding: 0.7rem 0 0.3rem 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.site-header .col-lg-12.col-12.d-flex.flex-wrap {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+.site-header p, .site-header a {
+  color: #fff !important;
+  font-weight: 600;
+  margin-bottom: 0 !important;
+  font-size: 1.08rem;
+}
+.site-header .site-header-icon-wrap {
+  margin-left: auto !important;
+  justify-content: flex-end;
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+}
+.site-header .site-header-icon-wrap i {
+  margin-right: 0.5rem;
+}
+.site-header .site-header-icon-wrap a {
+  margin-right: 1.2rem !important;
+  margin-bottom: 0 !important;
+  display: inline-block;
+}
+.site-header .bi-house-fill, .site-header .bi-telephone-fill {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+.site-header .d-flex.d-lg-block.d-md-block.d-none.me-4.mb-0 {
+  display: none !important;
+}
+@media (max-width: 991.98px) {
+  .site-header .col-lg-12.col-12.d-flex.flex-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .site-header .site-header-icon-wrap {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-top: 0.2rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+  .site-header .site-header-icon-wrap a {
+    margin-right: 1.2rem !important;
+    margin-bottom: 0 !important;
+    display: inline-block;
+  }
+  .site-header p, .site-header a {
+    font-size: 1rem;
+  }
+}
+/* HEADER BAR ca în index: fundal albastru, text alb, iconițe și telefoane pe un rând */
+.site-header {
+  background: #69aee7;
+  color: #fff;
+  padding: 0.7rem 0 0.3rem 0;
+}
+.site-header .col-lg-12.col-12.d-flex.flex-wrap {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+.site-header .site-header-icon-wrap {
+  margin-left: auto !important;
+  justify-content: flex-end;
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+}
+.site-header .site-header-icon-wrap i {
+  margin-right: 0.5rem;
+}
+.site-header .site-header-icon-wrap a {
+  margin-right: 1.2rem !important;
+  margin-bottom: 0 !important;
+  display: inline-block;
+}
+.site-header p, .site-header a {
+  color: #fff !important;
+  font-weight: 600;
+  margin-bottom: 0 !important;
+  font-size: 1.08rem;
+}
+.site-header .site-header-icon-wrap {
+  gap: 1.5rem;
+  margin-left: 0 !important;
+  margin-top: 0.2rem;
+}
+.site-header .bi-house-fill, .site-header .bi-telephone-fill {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+.site-header .d-flex.d-lg-block.d-md-block.d-none.me-4.mb-0 {
+  display: none !important;
+}
+@media (max-width: 991.98px) {
+  .site-header .col-lg-12.col-12.d-flex.flex-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .site-header .site-header-icon-wrap {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-top: 0.2rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+  .site-header .site-header-icon-wrap a {
+    margin-right: 1.2rem !important;
+    margin-bottom: 0 !important;
+    display: inline-block;
+  }
+  .site-header p, .site-header a {
+    font-size: 1rem;
+  }
+}
+/* NAVBAR și telefoane responsive */
+@media (max-width: 991.98px) {
+  .site-header .col-lg-12.col-12.d-flex.flex-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .site-header-icon-wrap {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .site-header-icon-wrap a {
+    margin-right: 1.2rem !important;
+    margin-bottom: 0.2rem;
+    display: inline-block;
+  }
+  .site-header .d-flex.me-4.mb-0,
+  .site-header .d-flex.d-lg-block.d-md-block.d-none.me-4.mb-0 {
+    margin-bottom: 0.2rem !important;
+  }
+}
+
+/* Contact info box pe mobil: spațiere și fonturi mai bune */
+@media (max-width: 767.98px) {
+  .contact-info {
+    padding: 1.2rem !important;
+    font-size: 1rem;
+  }
+  .contact-info h3 {
+    font-size: 1.2rem;
+  }
+  .contact-info a {
+    font-size: 1rem;
+    word-break: break-all;
+  }
+  .contact-info .mb-2.justify-content-center {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.2rem;
+  }
+}
+/* Egalizare carduri servicii pe fiecare rând */
+.services-section .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.services-section .row > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+.services-section .featured-block {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 260px;
+}
+
+/* Ridică textul mai aproape de titlu în card */
+.services-section .featured-block .d-flex.align-items-center.mb-3 {
+  margin-bottom: 10px !important;
+}
+
+@media (max-width: 991.98px) {
+  .services-section .row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .services-section .row > [class*='col-'] {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 1.2rem auto;
+    padding-left: 0;
+    padding-right: 0;
+    display: flex;
+  }
+  .services-section .featured-block {
+    min-height: 180px;
+    padding: 18px 14px;
+    font-size: 1.05rem;
+  }
+  .services-section .featured-block h4 {
+    font-size: 1.15rem;
+  }
+  .services-section .featured-block p {
+    font-size: 1rem;
+  }
+}
