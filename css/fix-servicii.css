@@ -290,3 +290,33 @@ body {
   width: auto !important;
   min-width: max-content !important;
 }
+
+/* Aliniere butoane în secțiunea hero pe mobile */
+@media (max-width: 991.98px) {
+  .hero-section .col-lg-7.col-12.text-center.mx-auto {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  .hero-section .custom-btn {
+    width: 90% !important;
+    max-width: 300px !important;
+    margin: 0 0 1rem 0 !important;
+    display: block !important;
+    text-align: center !important;
+  }
+  
+  .hero-section .custom-btn:last-of-type {
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section .custom-btn {
+    width: 95% !important;
+    max-width: 280px !important;
+    font-size: 0.9rem !important;
+    padding: 12px 20px !important;
+  }
+}
