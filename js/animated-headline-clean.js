@@ -88,10 +88,10 @@ jQuery(document).ready(function($){
 			$(this).css({
 				position: 'absolute',
 				top: '0',
-				left: '0',
+				left: '50%',
 				width: '100%',
 				opacity: index === 0 ? '1' : '0',
-				transform: index === 0 ? 'translateY(0%) scale(1)' : 'translateY(120%) scale(0.9)',
+				transform: index === 0 ? 'translateX(-50%) translateY(0%) scale(1)' : 'translateX(-50%) translateY(120%) scale(0.9)',
 				transition: 'none',
 				zIndex: index === 0 ? '2' : '1'
 			});
@@ -143,44 +143,60 @@ jQuery(document).ready(function($){
 			
 			console.log('Starting animation from word', currentIndex, 'to', nextIndex);
 			
-			// Set z-index for proper layering
-			$current.css('zIndex', '3');
-			$next.css('zIndex', '2');
+			// Clear all classes and reset transforms before starting
+			$words.removeClass('is-visible is-hidden animate-in animate-out');
 			
-			// Start exit animation for current word
-			$current.removeClass('is-visible').addClass('animate-out').css({
-				opacity: '0',
-				transform: 'translateY(-60%) scale(0.95)'
+			// Set initial positions with consistent transforms
+			$current.addClass('is-visible').css({
+				opacity: '1',
+				transform: 'translateX(-50%) translateY(0%) scale(1)',
+				zIndex: '3'
 			});
 			
-			// Prepare next word - ensure it starts from below viewport
-			$next.removeClass('is-hidden').addClass('animate-in').css({
+			$next.addClass('is-hidden').css({
 				opacity: '0',
-				transform: 'translateY(120%) scale(0.9)',
-				zIndex: '2'
+				transform: 'translateX(-50%) translateY(120%) scale(0.9)',
+				zIndex: '1'
 			});
 			
-			// Force reflow before animation
+			// Force reflow
 			$next[0].offsetHeight;
 			
-			// Animate in the next word after small delay
+			// Start animations with proper state classes
 			setTimeout(function() {
-				if (!globalAnimationState.isAnimating) return; // Safety check
-				$next.css({
+				if (!globalAnimationState.isAnimating) return;
+				
+				// Animate out current word
+				$current.removeClass('is-visible').addClass('animate-out').css({
+					opacity: '0',
+					transform: 'translateX(-50%) translateY(-60%) scale(0.95)',
+					zIndex: '3'
+				});
+				
+				// Animate in next word
+				$next.removeClass('is-hidden').addClass('animate-in').css({
 					opacity: '1',
-					transform: 'translateY(0%) scale(1)',
+					transform: 'translateX(-50%) translateY(0%) scale(1)',
 					zIndex: '2'
 				});
+				
 			}, 50);
 			
-			// Clean up after animation completes and schedule next
+			// Clean up after animation completes
 			setTimeout(function() {
-				$current.removeClass('animate-out').addClass('is-hidden').css({
-					transform: 'translateY(120%) scale(0.9)',
+				// Clear all animation classes
+				$words.removeClass('animate-in animate-out');
+				
+				// Set final states
+				$current.addClass('is-hidden').css({
+					opacity: '0',
+					transform: 'translateX(-50%) translateY(120%) scale(0.9)',
 					zIndex: '1'
 				});
 				
-				$next.removeClass('animate-in').addClass('is-visible').css({
+				$next.addClass('is-visible').css({
+					opacity: '1',
+					transform: 'translateX(-50%) translateY(0%) scale(1)',
 					zIndex: '2'
 				});
 				
@@ -197,7 +213,7 @@ jQuery(document).ready(function($){
 				
 				console.log('Animation completed, scheduling next in:', config.delay + 'ms');
 				
-			}, config.animDuration + 100); // Extended buffer
+			}, config.animDuration + 150); // Extended buffer for mobile
 		}
 		
 		// Start the cycle with initial delay
