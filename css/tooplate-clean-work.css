@@ -399,6 +399,19 @@ strong {
   }
 }
 
+/* iOS-specific: disable 3D animations to prevent glitches */
+@supports (-webkit-touch-callout: none) {
+  .cd-headline.rotate-1 b.is-visible,
+  .cd-headline.rotate-1 b.is-hidden {
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    animation: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    transform: none !important;
+  }
+}
+
 
 /*---------------------------------------
   CUSTOM LINK               

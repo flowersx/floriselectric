@@ -4,6 +4,7 @@ jQuery(document).ready(function($){
 	// Simple word rotation for .cd-headline.rotate-1
 	var animationDelay = 2500;
 	var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+	var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 	
 	function initWordRotation() {
 		$('.cd-headline.rotate-1').each(function() {
@@ -52,21 +53,60 @@ jQuery(document).ready(function($){
 				if (isAnimating) return;
 				isAnimating = true;
 				
-				// Hide current word
-				$words.eq(currentIndex).removeClass('is-visible').addClass('is-hidden');
-				
-				// Move to next word
-				currentIndex = (currentIndex + 1) % $words.length;
-				
-				// Show next word after a small delay for smoother transition on mobile
-				setTimeout(function() {
-					$words.eq(currentIndex).removeClass('is-hidden').addClass('is-visible');
+				if (isIOS) {
+					// iOS-specific smooth fade animation
+					var $current = $words.eq(currentIndex);
+					var nextIndex = (currentIndex + 1) % $words.length;
+					var $next = $words.eq(nextIndex);
 					
-					// Reset animation lock after CSS animation completes
+					// Fade out current word
+					$current.css({
+						'transition': 'opacity 0.4s ease-out',
+						'opacity': '0'
+					});
+					
 					setTimeout(function() {
-						isAnimating = false;
-					}, isMobile ? 600 : 400);
-				}, isMobile ? 50 : 0);
+						$current.removeClass('is-visible').addClass('is-hidden').css({
+							'transition': '',
+							'opacity': ''
+						});
+						
+						// Prepare next word
+						$next.removeClass('is-hidden').addClass('is-visible').css({
+							'opacity': '0',
+							'transition': 'opacity 0.4s ease-in'
+						});
+						
+						// Force reflow
+						$next[0].offsetHeight;
+						
+						// Fade in next word
+						$next.css('opacity', '1');
+						
+						currentIndex = nextIndex;
+						
+						setTimeout(function() {
+							$next.css({
+								'transition': '',
+								'opacity': ''
+							});
+							isAnimating = false;
+						}, 400);
+						
+					}, 400);
+				} else {
+					// Original 3D flip animation for desktop/Android
+					$words.eq(currentIndex).removeClass('is-visible').addClass('is-hidden');
+					currentIndex = (currentIndex + 1) % $words.length;
+					
+					setTimeout(function() {
+						$words.eq(currentIndex).removeClass('is-hidden').addClass('is-visible');
+						
+						setTimeout(function() {
+							isAnimating = false;
+						}, isMobile ? 600 : 400);
+					}, isMobile ? 50 : 0);
+				}
 				
 				console.log('Switched to word:', currentIndex, $words.eq(currentIndex).text());
 			}
