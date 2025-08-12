@@ -36,9 +36,11 @@ body {
   font-family: var(--body-font-family); 
 }
 
+
 /*---------------------------------------
   TYPOGRAPHY               
 -----------------------------------------*/
+
 h2,
 h3,
 h4,
@@ -120,6 +122,7 @@ strong {
   font-size: 10rem;
 }
 
+
 /*---------------------------------------
   SECTION               
 -----------------------------------------*/
@@ -151,77 +154,139 @@ strong {
   position: relative;
 }
 
+
 /*---------------------------------------
   ANIMATED HEADLINE               
 -----------------------------------------*/
+
+/* Base headline styles */
+.cd-headline {
+  line-height: 1.2;
+}
+
 .cd-headline.rotate-1 {
-  display: inline-block;
-  perspective: none; /* Remove perspective for iOS compatibility */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+/* Desktop layout - inline with space */
+@media (min-width: 769px) {
+  .cd-headline.rotate-1 {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* Mobile layout - stacked and centered */
+@media (max-width: 768px) {
+  .cd-headline.rotate-1 {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.25rem;
+  }
+}
+
+/* Words wrapper - container for rotating words */
 .cd-words-wrapper {
-  display: inline-block;
   position: relative;
-  text-align: left;
+  display: inline-block;
   overflow: hidden;
-  vertical-align: bottom;
-  min-height: 1.2em; /* Prevent layout shift */
+  vertical-align: baseline;
+  /* Dimensions will be set via JavaScript to prevent layout shifts */
 }
 
+/* Individual rotating words */
 .cd-words-wrapper b {
   color: #e5e50f;
-  display: inline-block;
+  display: block;
   position: absolute;
-  white-space: nowrap;
   top: 0;
   left: 0;
+  white-space: nowrap;
+  font-weight: inherit;
+  /* Initial state - hidden below */
   opacity: 0;
-  transform: translateY(100%);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(100%) scale(0.95);
+  /* Smooth transitions - will be applied via JS after setup */
+  transition: none;
+  /* Performance optimizations */
   will-change: opacity, transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Visible state */
 .cd-words-wrapper b.is-visible {
   position: relative;
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0%) scale(1);
 }
 
+/* Hidden state */
 .cd-words-wrapper b.is-hidden {
   opacity: 0;
-  transform: translateY(-100%);
+  transform: translateY(100%) scale(0.95);
 }
 
-.no-js .cd-words-wrapper b {
+/* Animation states */
+.cd-words-wrapper b.animate-in {
   opacity: 0;
+  transform: translateY(100%) scale(0.95);
 }
 
-.no-js .cd-words-wrapper b.is-visible {
+.cd-words-wrapper b.animate-out {
+  opacity: 0;
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Fallback for no-js environments */
+.no-js .cd-words-wrapper b {
+  position: relative;
   opacity: 1;
+  transform: none;
 }
 
-/* iOS-specific fixes */
-@supports (-webkit-overflow-scrolling: touch) {
-  .cd-words-wrapper b {
-    transform: translate3d(0, 100%, 0); /* Use translate3d for better rendering */
-    transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-
-  .cd-words-wrapper b.is-visible {
-    transform: translate3d(0, 0, 0);
-  }
-
-  .cd-words-wrapper b.is-hidden {
-    transform: translate3d(0, -100%, 0);
-  }
+.no-js .cd-words-wrapper b:not(:first-child) {
+  display: none;
 }
 
-/* Mobile performance optimizations */
+/* Performance optimizations for mobile */
 @media (max-width: 768px) {
   .cd-words-wrapper b {
-    transition-duration: 0.4s; /* Faster animation for mobile */
+    /* Shorter transitions on mobile for snappier feel */
+    transition-duration: 0.6s;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .cd-words-wrapper b {
+      transition-duration: 0.2s;
+      transform: none !important;
+    }
+    
+    .cd-words-wrapper b.animate-out {
+      opacity: 0;
+    }
+    
+    .cd-words-wrapper b.animate-in {
+      opacity: 1;
+    }
   }
 }
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .cd-words-wrapper b {
+    color: #ffff00;
+    text-shadow: 1px 1px 0 #000;
+  }
+}
+
 
 /*---------------------------------------
   CUSTOM LINK               
@@ -369,6 +434,7 @@ strong {
   transform: translate3d(0,-100%,0);
 }
 
+
 /*---------------------------------------
   CUSTOM BLOCK               
 -----------------------------------------*/
@@ -393,6 +459,7 @@ strong {
   color: var(--white-color);
 }
 
+
 /*---------------------------------------
   CUSTOM ICON COLOR               
 -----------------------------------------*/
@@ -404,6 +471,7 @@ strong {
   color: var(--custom-btn-bg-color);
 }
 
+
 /*---------------------------------------
   AVATAR IMAGE - TESTIMONIAL               
 -----------------------------------------*/
@@ -413,6 +481,7 @@ strong {
   height: 60px;
   object-fit: cover;
 }
+
 
 /*---------------------------------------
   CUSTOM BUTTON               
@@ -458,6 +527,7 @@ strong {
   color: var(--white-color);
 }
 
+
 /*---------------------------------------
   NAVIGATION              
 -----------------------------------------*/
@@ -486,6 +556,7 @@ strong {
   height: 100px;
   padding: 0px;
   zoom: 360%;
+  
 }
 
 .navbar-expand-lg .navbar-nav .nav-link {
@@ -644,6 +715,7 @@ strong {
   top: 8px;
 }
 
+
 /*---------------------------------------
   SITE HEADER              
 -----------------------------------------*/
@@ -678,6 +750,7 @@ strong {
   display: inline-block;
 }
 
+
 /*---------------------------------------
   HERO        
 -----------------------------------------*/
@@ -708,12 +781,14 @@ strong {
   }
 }
 
+
 /*---------------------------------------
   INTRO        
 -----------------------------------------*/
 .intro-section {
   padding-top: 50px;
 }
+
 
 /*---------------------------------------
   BANNER        
@@ -738,6 +813,7 @@ strong {
 .breadcrumb-item.active {
   color: var(--white-color);
 }
+
 
 /*---------------------------------------
   COUNTDOWN              
@@ -788,6 +864,7 @@ strong {
   left: 0;
 }
 
+
 /*---------------------------------------
   FEATURED              
 -----------------------------------------*/
@@ -798,6 +875,7 @@ strong {
 .featured-block {
   padding: 20px;
 }
+
 
 /*---------------------------------------
   ABOUT              
@@ -840,6 +918,7 @@ strong {
 .gallery-image:hover {
   transform: scale(1.02);
 }
+
 
 /*---------------------------------------
   SERVICES              
@@ -910,6 +989,7 @@ strong {
   height: 100%;
 }
 
+
 /*---------------------------------------
   TESTIMONIAL              
 -----------------------------------------*/
@@ -932,6 +1012,8 @@ strong {
 .testimonial-section .featured-block p {
   color: var(--white-color);
 }
+
+
 
 /*---------------------------------------
   PARTNERS              
@@ -962,6 +1044,7 @@ strong {
   transform: scale(1.05);
 }
 
+
 /*---------------------------------------
   COUNTER NUMBERS              
 -----------------------------------------*/
@@ -982,6 +1065,7 @@ strong {
   font-weight: var(--font-weight-bold);
   line-height: normal;
 }
+
 
 /*---------------------------------------
   CONTACT               
@@ -1013,6 +1097,7 @@ strong {
 .contact-info h5 a:hover {
   color: var(--link-hover-color);
 }
+
 
 /*---------------------------------------
   CUSTOM FORM               
@@ -1163,6 +1248,7 @@ strong {
   color: var(--white-color);
 }
 
+
 /*---------------------------------------
   SITE FOOTER              
 -----------------------------------------*/
@@ -1216,6 +1302,7 @@ strong {
 	color: var(--link-hover-color);
 }
 
+
 /*---------------------------------------
   FOOTER MENU               
 -----------------------------------------*/
@@ -1238,6 +1325,7 @@ strong {
   margin-right: 20px;
   margin-bottom: 5px;
 }
+
 
 /*---------------------------------------
   SOCIAL ICON               
@@ -1307,6 +1395,7 @@ strong {
 .button--skoll:hover::before {
   transform: translate3d(0,100%,0);
 }
+
 
 /*---------------------------------------
   RESPONSIVE STYLES               
@@ -1414,6 +1503,7 @@ strong {
 }
 
 @media screen and (max-width: 767px) {
+
   .custom-btn {
     font-size: 14px;
     padding: 10px 20px;
