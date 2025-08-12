@@ -199,6 +199,13 @@
   white-space: nowrap !important;
   overflow: visible !important;
   text-overflow: unset !important;
+  font-size: 1.7rem !important;
+}
+
+/* Mărește fontul pentru textul din carduri */
+.services-section .featured-block p {
+  font-size: 1.05rem !important;
+  line-height: 1.5 !important;
 }
 
 /* Ridică textul mai aproape de titlu în card */
