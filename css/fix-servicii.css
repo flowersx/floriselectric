@@ -200,6 +200,16 @@
   overflow: visible !important;
   text-overflow: unset !important;
   font-size: 1.7rem !important;
+  display: inline-block !important;
+  width: auto !important;
+  min-width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+/* Forțează și containerul să nu împartă textul */
+.services-section .featured-block .d-flex.align-items-center.mb-3 .ms-3 {
+  white-space: nowrap !important;
+  min-width: max-content !important;
 }
 
 /* Mărește fontul pentru textul din carduri */
