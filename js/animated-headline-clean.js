@@ -1,82 +1,98 @@
 jQuery(document).ready(function($){
-	// Add a 'js' class early for CSS control
-	if(!document.documentElement.classList.contains('js')){
-	  document.documentElement.classList.add('js');
-	}
-	// iOS detection for animation tweak
-	var _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-	if(_isIOS){ document.documentElement.classList.add('ios-fix'); }
-
 	console.log('Animated headline script starting...');
 	
 	// Simple word rotation for .cd-headline.rotate-1
-	var animationDelay = 2500; // keep same delay between word changes
+	var animationDelay = 2500;
+	var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+	
 	function initWordRotation() {
 		$('.cd-headline.rotate-1').each(function() {
 			var $headline = $(this);
 			var $wrapper = $headline.find('.cd-words-wrapper');
 			var $words = $wrapper.find('b');
+			
+			console.log('Found headline with', $words.length, 'words');
+			
 			if ($words.length <= 1) return;
-			var prevT = $wrapper.data('rotTimer'); if (prevT) clearTimeout(prevT);
-
-			// Revert any prior iOS absolute forcing for layout consistency
-			$words.each(function(){ this.style.position=''; this.style.transform=''; this.style.opacity=''; });
-			$wrapper.css({display:'inline-block', position:'relative'});
-
+			
+			// Clear any existing timer
+			var existingTimer = $wrapper.data('rotationTimer');
+			if (existingTimer) {
+				clearInterval(existingTimer);
+			}
+			
+			// Set wrapper minimum width to prevent layout shifts
+			var maxWidth = 0;
+			$words.each(function() {
+				var tempSpan = $('<span>').css({
+					'visibility': 'hidden',
+					'position': 'absolute',
+					'white-space': 'nowrap',
+					'font-family': $(this).css('font-family'),
+					'font-size': $(this).css('font-size'),
+					'font-weight': $(this).css('font-weight')
+				}).text($(this).text()).appendTo('body');
+				maxWidth = Math.max(maxWidth, tempSpan.width());
+				tempSpan.remove();
+			});
+			$wrapper.css('min-width', maxWidth + 'px');
+			
+			// Ensure first word is visible, others hidden - force reflow to prevent overlap
 			$words.removeClass('is-visible is-hidden');
-			$words.addClass('is-hidden').attr('aria-hidden','true');
-			$words.eq(0).removeClass('is-hidden').addClass('is-visible').attr('aria-hidden','false');
-
-			var currentIndex = 0; var switching = false;
-			var useIOSFallback = (typeof _isIOS !== 'undefined' && _isIOS);
-
-			function cssKeyframeSwitch(){
-				if (switching) return; switching = true;
-				var $current = $words.eq(currentIndex);
-				var nextIndex = (currentIndex + 1) % $words.length; var $next = $words.eq(nextIndex);
-				$current.attr('aria-hidden','true').removeClass('is-visible').addClass('is-hidden');
-				$next.attr('aria-hidden','false').removeClass('is-hidden').addClass('is-visible');
-				currentIndex = nextIndex;
-				var t = setTimeout(function(){ switching=false; schedule(); }, animationDelay);
-				$wrapper.data('rotTimer', t);
+			$words.eq(0).addClass('is-visible');
+			$words.slice(1).addClass('is-hidden');
+			
+			// Force browser to apply styles before starting animation
+			$words[0].offsetHeight;
+			
+			var currentIndex = 0;
+			var isAnimating = false;
+			
+			function switchWord() {
+				if (isAnimating) return;
+				isAnimating = true;
+				
+				// Hide current word
+				$words.eq(currentIndex).removeClass('is-visible').addClass('is-hidden');
+				
+				// Move to next word
+				currentIndex = (currentIndex + 1) % $words.length;
+				
+				// Show next word after a small delay for smoother transition on mobile
+				setTimeout(function() {
+					$words.eq(currentIndex).removeClass('is-hidden').addClass('is-visible');
+					
+					// Reset animation lock after CSS animation completes
+					setTimeout(function() {
+						isAnimating = false;
+					}, isMobile ? 600 : 400);
+				}, isMobile ? 50 : 0);
+				
+				console.log('Switched to word:', currentIndex, $words.eq(currentIndex).text());
 			}
-
-			function iosFallbackSwitch(){
-				if (switching) return; switching = true;
-				var $current = $words.eq(currentIndex);
-				var nextIndex = (currentIndex + 1) % $words.length; var $next = $words.eq(nextIndex);
-				// Prepare next
-				$next.attr('aria-hidden','false');
-				$next.removeClass('is-hidden is-visible'); // remove classes to avoid keyframes
-				$next.css({position:'absolute', left:0, top:0, transform:'rotateX(90deg)', opacity:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden'});
-				$current.css({position:'absolute', left:0, top:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden'});
-				$wrapper.css('height', Math.max($wrapper.height(), $current.outerHeight(), $next.outerHeight())+'px');
-				// Force reflow
-				void $next[0].offsetHeight;
-				// Animate via JS (transition inline)
-				$current.css({transition:'transform 0.6s ease, opacity 0.6s ease', transform:'rotateX(-90deg)', opacity:0});
-				$next.css({transition:'transform 0.6s ease, opacity 0.6s ease', transform:'rotateX(0deg)', opacity:1});
-				setTimeout(function(){
-					$current.addClass('is-hidden').removeAttr('style').attr('aria-hidden','true');
-					$next.addClass('is-visible').removeAttr('style');
-					currentIndex = nextIndex; switching=false; schedule();
-				}, 620);
-			}
-
-			function schedule(){
-				var t = setTimeout(function(){ useIOSFallback ? iosFallbackSwitch() : cssKeyframeSwitch(); }, animationDelay);
-				$wrapper.data('rotTimer', t);
-			}
-			schedule();
+			
+			// Start rotation
+			var timer = setInterval(switchWord, animationDelay);
+			$wrapper.data('rotationTimer', timer);
 		});
 	}
 	
 	// Initialize when DOM is ready
 	initWordRotation();
-
-	// Pause when tab hidden to keep timing in sync
-	document.addEventListener('visibilitychange', function(){
-		$('.cd-headline.rotate-1 .cd-words-wrapper').each(function(){ var t=$(this).data('rotTimer'); if(t) clearTimeout(t); });
-		if(!document.hidden){ initWordRotation(); }
+	
+	// Handle page visibility changes
+	document.addEventListener('visibilitychange', function() {
+		if (document.hidden) {
+			// Clear timers when page is hidden
+			$('.cd-headline.rotate-1 .cd-words-wrapper').each(function() {
+				var timer = $(this).data('rotationTimer');
+				if (timer) {
+					clearInterval(timer);
+				}
+			});
+		} else {
+			// Restart when page becomes visible
+			setTimeout(initWordRotation, 100);
+		}
 	});
 });

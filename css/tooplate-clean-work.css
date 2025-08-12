@@ -378,14 +378,26 @@ strong {
   }
 }
 
-/* iOS specific 3D flip smoothing */
-.ios-fix .cd-headline.rotate-1 .cd-words-wrapper { -webkit-perspective: 600px; perspective:600px; }
-.ios-fix .cd-headline.rotate-1 b { -webkit-transform-style: preserve-3d; transform-style:preserve-3d; }
-.ios-fix .cd-headline.rotate-1 b.is-visible { -webkit-backface-visibility: hidden; backface-visibility:hidden; }
-.ios-fix .cd-headline.rotate-1 b.is-hidden { -webkit-backface-visibility: hidden; backface-visibility:hidden; }
-/* Reduce translation pop by forcing initial translateZ(0) */
-.cd-headline.rotate-1 b { -webkit-transform: translateZ(0) rotateX(180deg); transform: translateZ(0) rotateX(180deg); }
-.cd-headline.rotate-1 b.is-visible { -webkit-transform: translateZ(0) rotateX(0deg); transform: translateZ(0) rotateX(0deg); }
+/* Mobile performance optimizations */
+@media (max-width: 768px) {
+  .cd-headline.rotate-1 .cd-words-wrapper {
+    -webkit-perspective: 200px;
+    -moz-perspective: 200px;
+    perspective: 200px;
+  }
+  
+  .cd-headline.rotate-1 b.is-visible {
+    -webkit-animation-duration: 0.8s;
+    -moz-animation-duration: 0.8s;
+    animation-duration: 0.8s;
+  }
+  
+  .cd-headline.rotate-1 b.is-hidden {
+    -webkit-animation-duration: 0.8s;
+    -moz-animation-duration: 0.8s;
+    animation-duration: 0.8s;
+  }
+}
 
 
 /*---------------------------------------
