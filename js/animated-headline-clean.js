@@ -4,8 +4,8 @@ jQuery(document).ready(function($){
 	// Configuration
 	var config = {
 		delay: 2500,           // Time between word changes
-		animDuration: 800,     // Animation duration
-		animEasing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)', // Smooth easing
+		animDuration: 500,     // Simple fade duration
+		animEasing: 'ease-in-out', // Simple easing
 		isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 	};
 	
@@ -91,8 +91,8 @@ jQuery(document).ready(function($){
 				left: '50%',
 				width: '100%',
 				opacity: index === 0 ? '1' : '0',
-				transform: index === 0 ? 'translateX(-50%) translateY(0%) scale(1)' : 'translateX(-50%) translateY(120%) scale(0.9)',
-				transition: 'none',
+				transform: 'translateX(-50%)',
+				transition: 'opacity 0.5s ease-in-out',
 				zIndex: index === 0 ? '2' : '1'
 			});
 			
@@ -106,12 +106,7 @@ jQuery(document).ready(function($){
 		// Force reflow
 		$words[0].offsetHeight;
 		
-		// Enable transitions after initial setup
-		setTimeout(function() {
-			$words.css({
-				transition: `opacity ${config.animDuration}ms ${config.animEasing}, transform ${config.animDuration}ms ${config.animEasing}, z-index 0ms`
-			});
-		}, 50);
+		// Simple fade transitions are already set in CSS and initial JS setup
 	}
 	
 	function startAnimationCycle($wrapper, $words) {
@@ -141,69 +136,29 @@ jQuery(document).ready(function($){
 				$wrapper.removeData('animTimer');
 			}
 			
-			console.log('Starting animation from word', currentIndex, 'to', nextIndex);
+			console.log('Starting simple fade from word', currentIndex, 'to', nextIndex);
 			
-			// Clear all classes and reset transforms before starting
-			$words.removeClass('is-visible is-hidden animate-in animate-out');
-			
-			// Set initial positions with consistent transforms
-			$current.addClass('is-visible').css({
-				opacity: '1',
-				transform: 'translateX(-50%) translateY(0%) scale(1)',
-				zIndex: '3'
-			});
-			
-			$next.addClass('is-hidden').css({
+			// Simple fade out current word
+			$current.removeClass('is-visible').addClass('animate-out').css({
 				opacity: '0',
-				transform: 'translateX(-50%) translateY(120%) scale(0.9)',
 				zIndex: '1'
 			});
 			
-			// Force reflow
-			$next[0].offsetHeight;
+			// Simple fade in next word
+			$next.removeClass('is-hidden').addClass('animate-in').css({
+				opacity: '1',
+				zIndex: '2'
+			});
 			
-			// Start animations with proper state classes
+			// Clean up after fade completes
 			setTimeout(function() {
-				if (!globalAnimationState.isAnimating) return;
-				
-				// Animate out current word
-				$current.removeClass('is-visible').addClass('animate-out').css({
-					opacity: '0',
-					transform: 'translateX(-50%) translateY(-60%) scale(0.95)',
-					zIndex: '3'
-				});
-				
-				// Animate in next word
-				$next.removeClass('is-hidden').addClass('animate-in').css({
-					opacity: '1',
-					transform: 'translateX(-50%) translateY(0%) scale(1)',
-					zIndex: '2'
-				});
-				
-			}, 50);
-			
-			// Clean up after animation completes
-			setTimeout(function() {
-				// Clear all animation classes
-				$words.removeClass('animate-in animate-out');
-				
-				// Set final states
-				$current.addClass('is-hidden').css({
-					opacity: '0',
-					transform: 'translateX(-50%) translateY(120%) scale(0.9)',
-					zIndex: '1'
-				});
-				
-				$next.addClass('is-visible').css({
-					opacity: '1',
-					transform: 'translateX(-50%) translateY(0%) scale(1)',
-					zIndex: '2'
-				});
+				$current.removeClass('animate-out').addClass('is-hidden');
+				$next.removeClass('animate-in').addClass('is-visible');
 				
 				currentIndex = nextIndex;
 				globalAnimationState.isAnimating = false;
 				
-				// Schedule next switch with guaranteed delay
+				// Schedule next switch
 				var timer = setTimeout(function() {
 					switchToNextWord();
 				}, config.delay);
@@ -211,9 +166,9 @@ jQuery(document).ready(function($){
 				$wrapper.data('animTimer', timer);
 				globalAnimationState.timers.push(timer);
 				
-				console.log('Animation completed, scheduling next in:', config.delay + 'ms');
+				console.log('Fade completed, scheduling next in:', config.delay + 'ms');
 				
-			}, config.animDuration + 150); // Extended buffer for mobile
+			}, 500); // Simple 500ms fade duration
 		}
 		
 		// Start the cycle with initial delay
