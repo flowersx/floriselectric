@@ -320,3 +320,11 @@ body {
     padding: 12px 20px !important;
   }
 }
+
+/* Folosește aceeași imagine de background pentru banner-section ca și hero-section */
+.banner-section {
+  background-image: url('../images/slideshow/WhatsApp Image 2025-08-05 at 11.44.29_5c9db20b.jpg') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
+}
